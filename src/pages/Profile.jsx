@@ -1,73 +1,64 @@
-import {useEffect,useState} from 'react';
-import {getAuth,updateProfile} from 'firebase/auth'
-import { useNavigate,Link } from 'react-router-dom';
-import {updateDoc,doc} from 'firebase/firestore'
-import {db} from '../firebase.config'
+import { useEffect, useState } from 'react';
+import { getAuth, updateProfile } from 'firebase/auth';
+import { useNavigate, Link } from 'react-router-dom';
+import { updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase.config';
 import { toast } from 'react-toastify';
 
-
-
-
-
-
-
-
 function Profile() {
-
   const auth = getAuth();
-  const [changeDetails,setChangeDetails]=useState(false)
-  const [formData,setFormData] = useState({
-    name:auth.currentUser.displayName,
-    email:auth.currentUser.email,
-  })
-  
+  const [changeDetails, setChangeDetails] = useState(false);
+  const [formData, setFormData] = useState({
+    name: auth.currentUser.displayName,
+    email: auth.currentUser.email,
+  });
 
-  const {name,email}= formData
+  const { name, email } = formData;
 
-const navigate=useNavigate()
-const onLogout =()=>{
-  auth.signOut()
-  navigate('/')
-}
-const onSubmit=async()=>{
- 
-  try {
-    
-    if(auth.currentUser.displayName !== name)
-    //update isplay name in fb
-{
-  await updateProfile(auth.currentUser,{
-    displayName:name
-  })
-}
+  const navigate = useNavigate();
+  const onLogout = () => {
+    auth.signOut();
+    navigate('/');
+  };
 
-// update in firestore
 
-const userRef=doc(db,'users',auth.currentUser.uid)
-await updateDoc(userRef,{
-  name
-}).then(
-  toast.success('Profile updated successfully')
-)
 
-} 
-  
-  catch (error) {
-    toast.error('could not update profile details')
-  }
 
-}
 
-const onChange=(e)=>{
 
-  setFormData((prevState)=>({
 
-    ...prevState,
-    [e.target.id]:e.target.value,
 
-  }))
-}
 
+
+ const onSubmit = async () => {
+   try {
+     if (auth.currentUser.displayName !== name) {
+       // Update display name in fb
+       await updateProfile(auth.currentUser, {
+         displayName: name,
+       });
+
+       // Update in firestore
+       const userRef = doc(db, 'users', auth.currentUser.uid);
+       await updateDoc(userRef, {
+         name,
+       });
+     }
+   } catch (error) {
+     console.log(error);
+     toast.error('Could not update profile details');
+   }
+ };
+
+
+
+
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  };
 
   return (
     <div className="profile">
