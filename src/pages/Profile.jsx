@@ -6,12 +6,16 @@ import { db } from '../firebase.config';
 import { toast } from 'react-toastify';
 
 function Profile() {
-  const auth = getAuth();
-  const [changeDetails, setChangeDetails] = useState(false);
-  const [formData, setFormData] = useState({
-    name: auth.currentUser.displayName,
-    email: auth.currentUser.email,
-  });
+ const auth = getAuth();
+ 
+ const [changeDetails, setChangeDetails] = useState(false);
+ const [formData, setFormData] = useState(
+  
+ 
+  {
+   email: auth.currentUser.email,
+   name: auth.currentUser.displayName,
+ })
 
   const { name, email } = formData;
 
@@ -39,10 +43,10 @@ function Profile() {
        });
 
        // Update in firestore
-       const userRef = doc(db, 'users', auth.currentUser.uid);
+       const userRef = doc(db, 'users', auth.currentUser.uid)
        await updateDoc(userRef, {
-         name,
-       });
+         name:name
+       })
      }
    } catch (error) {
      console.log(error);
@@ -68,14 +72,16 @@ function Profile() {
           Logout
         </button>
       </header>
+
+
       <main>
         <div className="profileDetailsHeader">
           <p className="profileDetailsText">Personal Details</p>
           <p
             className="changePersonalDetails"
             onClick={() => {
-              changeDetails && onSubmit();
-              setChangeDetails((prevState) => !prevState);
+              changeDetails && onSubmit()
+              setChangeDetails((prevState) => !prevState)
             }}
           >
             {changeDetails ? 'done' : 'change'}
