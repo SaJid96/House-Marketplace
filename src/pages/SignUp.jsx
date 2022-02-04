@@ -6,6 +6,7 @@ import { setDoc,doc,serverTimestamp } from 'firebase/firestore';
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg';
 import visibilityIcon from '../assets/svg/visibilityIcon.svg';
 import { toast } from 'react-toastify';
+import OAuth from '../components/OAuth';
 
 
 
@@ -71,13 +72,13 @@ function SignUp() {
         <main>
           <form onSubmit={onSubmit}>
             <input
-              type="text"
-              className="nameInput"
-              placeholder="Name"
-              value={name}
-              onChange={onChange}
-              id="name"
-            />
+            type="text"
+            className="nameInput"
+            placeholder="Name"
+            value={name}
+            onChange={onChange}
+            id="name"
+          />
             <input
               type="email"
               className="emailInput"
@@ -112,7 +113,8 @@ function SignUp() {
               </button>
             </div>
           </form>
-          {/* Google oAuth */}
+
+          <OAuth />
           <Link to="/sign-in" className="registerLink">
             Sign In Instead
           </Link>
@@ -123,3 +125,58 @@ function SignUp() {
 }
 
 export default SignUp;
+    // <div className="pageContainer">
+    //   <header>
+    //     <p className="pageHeader">Welcome Back</p>
+    //   </header>
+
+    //   <main>
+    //     <form onSubmit={onSubmit}>
+    //       <input
+    //         type="text"
+    //         className="nameInput"
+    //         placeholder="Name"
+    //         value={name}
+    //         onChange={onChange}
+    //         id="name"
+    //       />
+    //       <input
+    //         type="email"
+    //         className="emailInput"
+    //         placeholder="Email"
+    //         value={email}
+    //         onChange={onChange}
+    //         id="email"
+    //       />
+    //       <div className="passwordInputDiv">
+    //         <input
+    //           type={showPassword ? 'text' : 'password'}
+    //           value={password}
+    //           placeholder="Password"
+    //           className="passwordInput"
+    //           id="password"
+    //           onChange={onChange}
+    //         />
+    //         <img
+    //           src={visibilityIcon}
+    //           alt="show password"
+    //           className="showPassword"
+    //           onClick={() => setShowPassword((prevState) => !prevState)}
+    //         />
+    //       </div>
+    //       <Link to="/forgot-password" className="forgotPasswordLink">
+    //         Forgot Password
+    //       </Link>
+    //       <div className="signUpBar">
+    //         <p className="singUpText">Sign Up</p>
+    //         <button className="signUpButton">
+    //           <ArrowRightIcon fill="#fffff" width="34px" height="34px" />
+    //         </button>
+    //       </div>
+    //     </form>
+    //     {/* Google oAuth */}
+    //     <Link to="/sign-in" className="registerLink">
+    //       Sign In Instead
+    //     </Link>
+    //   </main>
+    // </div>;
