@@ -3,6 +3,11 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { toast } from 'react-toastify';
+import {getStorage,ref,uploadBytesResumable,getDownloadURL} from 'firebase/storage'
+import { addDoc,collection,serverTimestamp } from 'firebase/firestore';
+import {db} from '../firebase.config'
+import {v4 as uuidv4} from 'uuid'
+
 
 function CreateListing() {
   // eslint-disable-next-line
@@ -61,69 +66,126 @@ function CreateListing() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted]);
 
-  const onMutate = (e) => {
-  
-    let boolean =null
+   const onMutate = (e) => {
+     let boolean = null;
 
-    if (e.target.value === 'true') {
-        
-        boolean=true
-    }
+     if (e.target.value === 'true') {
+       boolean = true;
+     }
+     if (e.target.value === 'false') {
+       boolean = false;
+     }
 
-    if(e.target.value === 'false'){
-        boolean =false
-    }
+     // Files
+     if (e.target.files) {
+       setFormData((prevState) => ({
+         ...prevState,
+         images: e.target.files,
+       }));
+     }
 
-    if(e.target.files){
-        setFormData((prevState)=>({
-
-            ...prevState,images:e.target.files
-        }))
-    }
-
- if (!e.target.files) {
-   setFormData((prevState) => ({
-     ...prevState,
-     [e.target.id]: boolean ?? e.target.value,
-   }));
- }
+     // Text/Booleans/Numbers
+     if (!e.target.files) {
+       setFormData((prevState) => ({
+         ...prevState,
+         [e.target.id]: boolean ?? e.target.value,
+       }));
+     }
+   };
 
 
-}
+
   const onSubmit = async(e) =>{
-      e.preventDefault()
+    e.preventDefault();
 
-      setLoading(true)
+    setLoading(true);
 
-      if(discountedPrice >= regularPrice){
+    if (discountedPrice >= regularPrice) {
+      setLoading(false);
 
-        setLoading(false)
+      toast.error('Discounted price should be less than regular Price');
+      return;
+    }
 
-        toast.error('Discounted price should be less than regular Price')
-        return
-      }
+    if (images.lenght > 6) {
+      setLoading(false);
 
+      toast.error('Max 6 images');
+      return;
+    }
 
-      if(images.lenght > 6){
-          setLoading(false)
+    let geolocation = {};
+    let location;
 
-          toast.error('Max 6 images')
-          return
-      }
+    geolocation.lat = latitude;
+    geolocation.lng = longitude;
+    
+    console.log(geolocation, location);
+    // Store image in firebase
+    const storeImage = async (image) => {
+      return new Promise((resolve, reject) => {
+        const storage = getStorage();
+        const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
 
-      let geolocation={}
-      let location 
+        const storageRef = ref(storage, 'images/' + fileName);
 
-      
-     
+        const uploadTask = uploadBytesResumable(storageRef, image);
 
-        geolocation.lat=latitude
-        geolocation.lng=longitude
-        location=address
-        console.log(geolocation, location);
-      
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+              case 'paused':
+                console.log('Upload is paused');
+                break;
+              case 'running':
+                console.log('Upload is running');
+                break;
+              default:
+                break;
+            }
+          },
+          (error) => {
+            reject(error);
+          },
+          () => {
+            // Handle successful uploads on complete
+            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+              resolve(downloadURL);
+            });
+          }
+        );
+      });
+    };
 
-      setLoading(false)
+    const imageUrls = await Promise.all(
+      [...images].map((image) => storeImage(image))
+    ).catch(() => {
+      setLoading(false);
+      toast.error('Images not uploaded');
+      return;
+    });
+
+   const formDataCopy={
+     ...formData,
+     imageUrls,timestamp:serverTimestamp()
+   }
+
+   formDataCopy.location=address
+   delete formDataCopy.images
+   delete formDataCopy.address
+  
+   !formDataCopy.offer && delete formDataCopy.discountedPrice
+
+   const docRef =await addDoc(collection(db,'listings'),formDataCopy)
+   setLoading(false);
+   toast.success('Listing Saved')
+   navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+
   }
 
   if (loading) {
