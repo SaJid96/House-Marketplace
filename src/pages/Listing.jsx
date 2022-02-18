@@ -38,7 +38,7 @@ function Listing() {
 
         fecthListing()
 
-    },[navigate,params.listingID])
+    },[navigate,params.listingId])
 
 if (loading) {
   return <Spinner/>
@@ -95,7 +95,7 @@ if (loading) {
         {/* Map */}
         {auth.currentUser?.uid !== listing.userRef && (
           <Link
-          to={`/contact/${listing.userRef}?listingName=${listing.name}&listingLocation=${listing.location}`}
+          to={`/contact/${listing.userRef}`}
           className="primaryButton"
           >
             Contact Landlord 
