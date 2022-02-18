@@ -38,7 +38,7 @@ function Listing() {
 
         fecthListing()
 
-    },[navigate],params.listingID)
+    },[navigate,params.listingID])
 
 if (loading) {
   return <Spinner/>
